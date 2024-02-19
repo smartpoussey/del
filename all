@@ -1,0 +1,495 @@
+Select Statement:
+$stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+
+Insert Statement:
+$stmt = $conn->prepare("INSERT INTO products (name, price) VALUES (?, ?)");
+
+Update Statement:
+$stmt = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
+
+Delete Statement:
+$stmt = $conn->prepare("DELETE FROM customers WHERE id = ?");
+
+Join Statement:
+$stmt = $conn->prepare("SELECT users.name, orders.product_id FROM users INNER JOIN orders ON users.id = orders.user_id WHERE users.id = ?");
+
+Group By Statement:
+$stmt = $conn->prepare("SELECT category, COUNT(*) as count FROM products GROUP BY category");
+
+Having Statement:
+$stmt = $conn->prepare("SELECT category, COUNT(*) as count FROM products GROUP BY category HAVING count > ?");
+
+Order By Statement:
+$stmt = $conn->prepare("SELECT * FROM products ORDER BY price DESC");
+
+Limit Statement:
+$stmt = $conn->prepare("SELECT * FROM products LIMIT ?");
+
+Subquery Statement:
+$stmt = $conn->prepare("SELECT * FROM products WHERE price > (SELECT AVG(price) FROM products)");
+
+
+<?php
+// Database connection
+$conn = new mysqli('localhost', 'root', '');
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Create database
+$sql_create_db = "CREATE DATABASE IF NOT EXISTS my_database";
+if ($conn->query($sql_create_db) === TRUE) {
+    echo "Database created successfully<br>";
+} else {
+    echo "Error creating database: " . $conn->error . "<br>";
+}
+
+// Select database
+$conn->select_db("my_database");
+
+// Create table
+$sql_create_table = "CREATE TABLE IF NOT EXISTS registration (
+    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    firstName VARCHAR(30) NOT NULL,
+    lastName VARCHAR(30) NOT NULL,
+    gender ENUM('male', 'female', 'other') NOT NULL,
+    email VARCHAR(50) UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    number INT(10)
+)";
+if ($conn->query($sql_create_table) === TRUE) {
+    echo "Table registration created successfully<br>";
+} else {
+    echo "Error creating table: " . $conn->error . "<br>";
+}
+
+// Close connection
+$conn->close();
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Registration Page</title>
+</head>
+<body>
+  <div class="container">
+    <div class="row" style="margin: 0 auto; width: 50%;">
+      <div style="background-color: #337ab7; color: #fff; padding: 10px;">
+        <h1 style="text-align: center;">Registration Form</h1>
+      </div>
+      <div style="background-color: #f7f7f7; padding: 20px;">
+        <form action="connect.php" method="post">
+          <div style="margin-bottom: 10px;">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" style="width: 100%; padding: 5px;">
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" style="width: 100%; padding: 5px;">
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="gender">Gender</label>
+            <br>
+            <input type="radio" id="male" name="gender" value="m">
+            <label for="male">Male</label>
+            <input type="radio" id="female" name="gender" value="f">
+            <label for="female">Female</label>
+            <input type="radio" id="others" name="gender" value="o">
+            <label for="others">Others</label>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="email">Email</label>
+            <input type="text" id="email" name="email" style="width: 100%; padding: 5px;">
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" style="width: 100%; padding: 5px;">
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="number">Phone Number</label>
+            <input type="number" id="number" name="number" style="width: 100%; padding: 5px;">
+          </div>
+          <input type="submit" value="Submit" style="background-color: #337ab7; color: #fff; padding: 10px; border: none; cursor: pointer;">
+        </form>
+      </div>
+      <div style="background-color: #337ab7; color: #fff; padding: 10px; text-align: right;">
+        <small>&copy; Technical Babaji</small>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+<?php
+	$firstName = $_POST['firstName'];
+	$lastName = $_POST['lastName'];
+	$gender = $_POST['gender'];
+	$email = $_POST['email'];
+	$password = $_POST['password'];
+	$number = $_POST['number'];
+
+	// Database connection
+	$conn = new mysqli('localhost','root','','my_database');
+	if($conn->connect_error){
+		echo "$conn->connect_error";
+		die("Connection Failed : ". $conn->connect_error);
+	} else {
+		$stmt = $conn->prepare("insert into registration(firstName, lastName, gender, email, password, number) values(?, ?, ?, ?, ?, ?)");
+		$stmt->bind_param("sssssi", $firstName, $lastName, $gender, $email, $password, $number);
+		$execval = $stmt->execute();
+		echo $execval;
+		echo "Registration successfully...";
+		$stmt->close();
+		$conn->close();
+	}
+?>
+
+
+
+1.Consider an application that implements a remote dictionary. The dictionary offers four operations: count to return the word count, insert to insert a word and its content, delete to delete a word, and lookup to search for a word and return the content of the word.
+package pkg;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+public interface DictionaryInterface extends Remote {
+    int count() throws RemoteException;
+    void insert(String word, String content) throws RemoteException;
+    void delete(String word) throws RemoteException;
+    String lookup(String word) throws RemoteException;
+}
+package pkg;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
+import java.util.Map;
+public class Dictionary extends UnicastRemoteObject implements DictionaryInterface{
+    private Map<String, String> dictionary;
+    public Dictionary() throws RemoteException {
+        dictionary = new HashMap<>();
+    }
+    @Override
+    public int count() throws RemoteException {
+        return dictionary.size();
+    }
+    @Override
+    public void insert(String word, String content) throws RemoteException {
+        dictionary.put(word, content);
+    }
+    @Override
+    public void delete(String word) throws RemoteException {
+        dictionary.remove(word);
+    }
+    @Override
+    public String lookup(String word) throws RemoteException {
+        return dictionary.get(word);
+    }
+}
+package pkg;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+public class DictionaryServer {
+    public static void main(String[] args) {
+        try {
+            LocateRegistry.createRegistry(1099);
+   Dictionary dictionary = new Dictionary();
+            Naming.rebind("DictionaryService", dictionary);
+            System.out.println("Dictionary service is running..."); } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+package pkg;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+public class DictionaryClient {
+    public static void main(String[] args) {
+        try {
+   DictionaryInterface dictionary = (DictionaryInterface)
+            Naming.lookup("rmi://localhost:1099/DictionaryService");
+            dictionary.insert("apple", "A fruit with red or yellow edible skin and a core containing seeds.");
+            dictionary.insert("banana", "An elongated   curved  fruit   with    a   yellow  or reddish skin.");
+            dictionary.insert("orange", "A  round   citrus  fruit   with    a   tough   bright reddish-yellow rind.");
+            int wordCount = dictionary.count();
+            System.out.println("Word Count: " + wordCount);
+            String appleContent = dictionary.lookup("apple");
+            System.out.println("Definition of 'apple': " + appleContent);
+            dictionary.delete("banana");    
+            String bananaContent = dictionary.lookup("banana");
+            System.out.println("Definition of 'banana': " + bananaContent); } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+1.Consider an application that implements a remote dictionary. The dictionary offers four operations: count to return the word count, insert to insert a word and its content, delete to delete a word, and lookup to search for a word and return the content of the word.
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+public interface DictionaryInterface extends Remote {
+    int count() throws RemoteException;
+    void insert(String word, String content) throws RemoteException;
+    void delete(String word) throws RemoteException;
+    String lookup(String word) throws RemoteException;
+}
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
+import java.util.Map;
+public class Dictionary extends UnicastRemoteObject implements DictionaryInterface{
+    private Map<String, String> dictionary;
+    public Dictionary() throws RemoteException {
+        dictionary = new HashMap<>();
+    }
+    @Override
+    public int count() throws RemoteException {
+        return dictionary.size();
+    }
+    @Override
+    public void insert(String word, String content) throws RemoteException {
+        dictionary.put(word, content);
+    }
+    @Override
+    public void delete(String word) throws RemoteException {
+        dictionary.remove(word);
+    }
+    @Override
+    public String lookup(String word) throws RemoteException {
+        return dictionary.get(word);
+    }
+}
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+public class DictionaryServer {
+    public static void main(String[] args) {
+        try {
+            LocateRegistry.createRegistry(1099);
+            Naming.rebind("DictionaryService", dictionary);
+            System.out.println("Dictionary service is running..."); } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (Exception e) { 
+            e.printStackTrace();
+        }
+    }
+}
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+public class DictionaryClient {
+    public static void main(String[] args) {
+        try {
+            Naming.lookup("rmi://localhost:1099/DictionaryService");
+            dictionary.insert("apple", "A fruit with red or yellow edible skin and a core containing seeds.");
+            dictionary.insert("banana", "An elongated   curved  fruit   with    a   yellow  or reddish skin.");
+            dictionary.insert("orange", "A  round   citrus  fruit   with    a   tough   bright reddish-yellow rind."); 
+            int wordCount = dictionary.count();
+            System.out.println("Word Count: " + wordCount);
+            String appleContent = dictionary.lookup("apple");
+            System.out.println("Definition of 'apple': " + appleContent);
+            dictionary.delete("banana");    
+            String bananaContent = dictionary.lookup("banana");
+            System.out.println("Definition of 'banana': " + bananaContent); } catch (RemoteException e) {
+            e.printStackTrace(); 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+2. Design a calculator using UI components. The calculator application logic should be implemented through RMI program and test the output.
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+public interface CalculatorInterface extends Remote {
+    int add(int a, int b) throws RemoteException; 
+    int subtract(int a, int b) throws RemoteException; 
+    int multiply(int a, int b) throws RemoteException; 
+    double divide(int a, int b) throws RemoteException;
+}
+import java.rmi.RemoteException; 
+import java.rmi.server.UnicastRemoteObject;
+public class Calculator extends UnicastRemoteObject implements CalculatorInterface {
+    public Calculator() throws RemoteException {
+    }
+    @Override public int add(int a, int b) throws RemoteException { 
+        return a + b;
+    }
+    @Override public int subtract(int a, int b) throws RemoteException {
+        return a - b;
+    }
+    @Override public int multiply(int a, int b) throws RemoteException { 
+        return a * b;
+    }
+    @Override public double divide(int a, int b) throws RemoteException { 
+        if (b == 0) { 
+            throw new IllegalArgumentException("Cannot divide by zero");
+        }
+        return (double) a / b;
+    }
+}
+import java.rmi.Naming; 
+import java.rmi.RemoteException; 
+import java.rmi.registry.LocateRegistry; 
+public class CalculatorServer {
+    public static void main(String[] args) { 
+        try {
+            Calculator calculator = new Calculator();
+            LocateRegistry.createRegistry(1099);
+            Naming.rebind("CalculatorService", calculator);
+            System.out.println("Calculator service is running..."); 
+        } catch (RemoteException e) {
+            e.printStackTrace(); 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+import java.rmi.Naming; 
+import java.rmi.RemoteException; 
+public class CalculatorClient {
+    public static void main(String[] args) {
+        try {
+            CalculatorInterface calculator = (CalculatorInterface)
+            Naming.lookup("rmi://localhost:1099/CalculatorService");
+            int sum = calculator.add(a, b); 
+            int difference = calculator.subtract(a, b); 
+            int product = calculator.multiply(a, b); 
+            double division = calculator.divide(a, b);
+            System.out.println("Sum: " + sum);
+            System.out.println("Difference: " + difference);
+            System.out.println("Product: " + product);
+            System.out.println("Division: " + division); 
+        } catch (RemoteException e) {
+            e.printStackTrace(); 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+3. A book shop maintains the inventory of books that are being sold at the shop the list includes details such as author, title and publisher and stock position. Whenever a customer wants the book, the sales person inputs the title and author and the system search the list and display whether it is available or not. If it is not, an appropriate message is displayed, if it is, then the system displays the book details and requests for the number of copies require. If the requested are available, the total cost of the required copies is displayed: otherwise the message "Required copies not in stock" is displayed
+import java.rmi.Remote; 
+import java.rmi.RemoteException;
+public interface BookshopInterface extends Remote {
+    Book searchBook(String title, String author) throws RemoteException;
+    boolean checkAvailability(String    title,  String author, int requiredCopies) throws RemoteException;
+}
+import java.io.Serializable;
+public class Book implements Serializable { 
+    private String title; 
+    private String author; 
+    private String publisher;
+    private int stockPosition;
+    public Book(String title, String author, String publisher, int stockPosition) { 
+        this.title = title; 
+        this.author = author; 
+        this.publisher = publisher; 
+        this.stockPosition = stockPosition;
+    }
+    public String getTitle() { 
+        return title;
+    }
+    public String getAuthor() { 
+        return author;
+    }
+    public String getPublisher() { 
+        return publisher;
+    }
+    public int getStockPosition() { 
+        return stockPosition;
+    }
+}
+import java.rmi.RemoteException; 
+import java.rmi.server.UnicastRemoteObject; 
+import java.util.ArrayList; 
+import java.util.List;
+public class Bookshop extends UnicastRemoteObject implements BookshopInterface {
+    private List<Book> inventory;
+    public Bookshop() throws RemoteException { 
+        inventory = new ArrayList<>();
+        inventory.add(new Book("Book 1", "Author 1", "Publisher 1", 5)); 
+        inventory.add(new Book("Book 2", "Author 2", "Publisher 2", 3)); 
+        inventory.add(new Book("Book 3", "Author 3", "Publisher 3", 10));
+    }
+    @Override
+    public Book searchBook(String title, String author) throws RemoteException {
+        for (Book book : inventory) {
+            if (book.getTitle().equals(title) && book.getAuthor().equals(author)) {
+                return book;
+            }
+        }
+        return null;
+    }
+    @Override
+    public  boolean checkAvailability(String    title,  String  author, int requiredCopies) throws RemoteException { 
+        Book book = searchBook(title, author); 
+        if (book != null && book.getStockPosition() >= requiredCopies) { 
+            return true;
+        }
+        return false;
+    }
+}
+import java.rmi.Naming; 
+import java.rmi.RemoteException; 
+import java.rmi.registry.LocateRegistry;
+public class BookshopServer { 
+    public static void main(String[] args) { 
+        try {
+            Bookshop bookshop = new Bookshop();
+            LocateRegistry.createRegistry(1099);
+            Naming.rebind("BookshopService", bookshop);
+            System.out.println("Bookshop service is running..."); 
+        } catch (RemoteException e) {
+            e.printStackTrace(); } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+import java.rmi.Naming; 
+import java.rmi.RemoteException; 
+import java.util.Scanner;
+public class BookshopClient { 
+    public static void main(String[] args) { 
+        try {
+            BookshopInterface bookshop = (BookshopInterface)
+            Naming.lookup("rmi://localhost:1099/BookshopService");
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter the book title: ");
+            String title = scanner.nextLine();
+            System.out.print("Enter the book author: ");
+            String author = scanner.nextLine();
+            System.out.print("Enter the number of copies required: "); 
+            int requiredCopies = scanner.nextInt();
+            Book book = bookshop.searchBook(title, author); 
+            if (book != null) {
+                System.out.println("Book found!");
+                System.out.println("Book details:");
+                System.out.println("Title: " + book.getTitle());
+                System.out.println("Author: " + book.getAuthor());
+                System.out.println("Publisher: " + book.getPublisher());
+                System.out.println("Stock Position: " + book.getStockPosition());
+                boolean available = bookshop.checkAvailability(title, author, requiredCopies);
+                if (available) {
+                    int totalCost = requiredCopies * 10;
+                    System.out.println("The required copies```The required copies are available. Total cost: $" + totalCost);
+                } else {
+                    System.out.println("Required copies not in stock.");
+                }
+            } 
+            else {
+                System.out.println("Book not found.");
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace(); 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
