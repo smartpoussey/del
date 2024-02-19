@@ -1,0 +1,39 @@
+<?php
+// Database connection
+$conn = new mysqli('localhost', 'root', '');
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Create database
+$sql_create_db = "CREATE DATABASE IF NOT EXISTS my_database";
+if ($conn->query($sql_create_db) === TRUE) {
+    echo "Database created successfully<br>";
+} else {
+    echo "Error creating database: " . $conn->error . "<br>";
+}
+
+// Select database
+$conn->select_db("my_database");
+
+// Create table
+$sql_create_table = "CREATE TABLE IF NOT EXISTS registration (
+    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    firstName VARCHAR(30) NOT NULL,
+    lastName VARCHAR(30) NOT NULL,
+    gender ENUM('male', 'female', 'other') NOT NULL,
+    email VARCHAR(50) UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    number INT(10)
+)";
+if ($conn->query($sql_create_table) === TRUE) {
+    echo "Table registration created successfully<br>";
+} else {
+    echo "Error creating table: " . $conn->error . "<br>";
+}
+
+// Close connection
+$conn->close();
+?>
