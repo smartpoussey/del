@@ -1,0 +1,116 @@
+<?php
+// Database connection
+$conn = new mysqli('localhost', 'root', '');
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Create database
+$sql_create_db = "CREATE DATABASE IF NOT EXISTS my_database";
+if ($conn->query($sql_create_db) === TRUE) {
+    echo "Database created successfully<br>";
+} else {
+    echo "Error creating database: " . $conn->error . "<br>";
+}
+
+// Select database
+$conn->select_db("my_database");
+
+// Create table
+$sql_create_table = "CREATE TABLE IF NOT EXISTS registration (
+    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    firstName VARCHAR(30) NOT NULL,
+    lastName VARCHAR(30) NOT NULL,
+    gender ENUM('male', 'female', 'other') NOT NULL,
+    email VARCHAR(50) UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    number INT(10)
+)";
+if ($conn->query($sql_create_table) === TRUE) {
+    echo "Table registration created successfully<br>";
+} else {
+    echo "Error creating table: " . $conn->error . "<br>";
+}
+
+// Close connection
+$conn->close();
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Registration Page</title>
+</head>
+<body>
+  <div class="container">
+    <div class="row" style="margin: 0 auto; width: 50%;">
+      <div style="background-color: #337ab7; color: #fff; padding: 10px;">
+        <h1 style="text-align: center;">Registration Form</h1>
+      </div>
+      <div style="background-color: #f7f7f7; padding: 20px;">
+        <form action="connect.php" method="post">
+          <div style="margin-bottom: 10px;">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" style="width: 100%; padding: 5px;">
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" style="width: 100%; padding: 5px;">
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="gender">Gender</label>
+            <br>
+            <input type="radio" id="male" name="gender" value="m">
+            <label for="male">Male</label>
+            <input type="radio" id="female" name="gender" value="f">
+            <label for="female">Female</label>
+            <input type="radio" id="others" name="gender" value="o">
+            <label for="others">Others</label>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="email">Email</label>
+            <input type="text" id="email" name="email" style="width: 100%; padding: 5px;">
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" style="width: 100%; padding: 5px;">
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="number">Phone Number</label>
+            <input type="number" id="number" name="number" style="width: 100%; padding: 5px;">
+          </div>
+          <input type="submit" value="Submit" style="background-color: #337ab7; color: #fff; padding: 10px; border: none; cursor: pointer;">
+        </form>
+      </div>
+      <div style="background-color: #337ab7; color: #fff; padding: 10px; text-align: right;">
+        <small>&copy; Technical Babaji</small>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+<?php
+	$firstName = $_POST['firstName'];
+	$lastName = $_POST['lastName'];
+	$gender = $_POST['gender'];
+	$email = $_POST['email'];
+	$password = $_POST['password'];
+	$number = $_POST['number'];
+
+	// Database connection
+	$conn = new mysqli('localhost','root','','my_database');
+	if($conn->connect_error){
+		echo "$conn->connect_error";
+		die("Connection Failed : ". $conn->connect_error);
+	} else {
+		$stmt = $conn->prepare("insert into registration(firstName, lastName, gender, email, password, number) values(?, ?, ?, ?, ?, ?)");
+		$stmt->bind_param("sssssi", $firstName, $lastName, $gender, $email, $password, $number);
+		$execval = $stmt->execute();
+		echo $execval;
+		echo "Registration successfully...";
+		$stmt->close();
+		$conn->close();
+	}
+?>
